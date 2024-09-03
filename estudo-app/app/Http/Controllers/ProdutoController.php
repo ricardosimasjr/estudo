@@ -30,10 +30,13 @@ class ProdutoController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
-        $produto = Produto::create($request->all());
-        $produto->save();
-        return view('produtos.index');
+        produto::create([
+            'sku'=>$request->sku,
+            'nome'=>$request->nome,
+            'foto'=>$request->file('foto')->store('comprovantes', 'public'),
+
+        ]);
+        return to_route('product.index');
     }
 
     /**
@@ -49,15 +52,27 @@ class ProdutoController extends Controller
      */
     public function edit(produto $produto)
     {
-        //
+        return view('produtos.edit', ['produto' =>$produto]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, produto $produto)
+    public function update(Request $request, Produto $produto)
     {
-        //
+        //dd($produto);
+        $caminhoFoto = $produto->foto;
+        if($request->hasFile('foto')){
+            $caminhoFoto = $request->file('foto')->store('comprovantes', 'public');
+        }
+        $produto->fill([
+            'sku' => $request->sku,
+            'nome' => $request->nome,
+            'foto' => $caminhoFoto,
+
+        ]);
+        $produto->save();
+        return to_route('product.index');
     }
 
     /**
